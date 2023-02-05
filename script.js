@@ -453,6 +453,8 @@ class App {
     if (!workoutEl) return;
     if (!workoutEl.querySelector('.workout__edit__button').matches(':hover'))
       return;
+    // Preventing double edits:
+    if (!form.classList.contains('hidden')) return;
 
     const workout = this.#workouts.find(
       work => work.id === workoutEl.dataset.id
