@@ -437,12 +437,14 @@ class App {
   }
 
   _deleteWorkout(e) {
-    //from "_moveToPopup":
     const workoutEl = e.target.closest('.workout');
 
     if (!workoutEl) return;
     if (!workoutEl.querySelector('.workout__delete__button').matches(':hover'))
       return;
+
+    // No deleting while editng:
+    if (!form.classList.contains('hidden')) return;
 
     this._deleteById(workoutEl.dataset.id);
   }
