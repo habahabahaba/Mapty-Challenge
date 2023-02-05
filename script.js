@@ -453,6 +453,7 @@ class App {
     if (!workoutEl) return;
     if (!workoutEl.querySelector('.workout__edit__button').matches(':hover'))
       return;
+
     // Preventing double edits:
     if (!form.classList.contains('hidden')) return;
 
@@ -480,8 +481,20 @@ class App {
       latlng: { lat: workout.coords[0], lng: workout.coords[1] },
     };
 
-    // Deleting original workout:
-    this._deleteById(workout.id);
+    // Deleting original workout only after edit form is closed:
+    function deleteDisconnect(mutationRecords) {
+      if (mutationRecords) {
+        this._deleteById(workout.id);
+        waitFormClose.disconnect();
+      }
+    }
+    const waitFormClose = new MutationObserver(deleteDisconnect.bind(this));
+
+    // Waiting for the form's class to change:
+    waitFormClose.observe(form, {
+      attributes: true,
+      attributeFilter: ['class'],
+    });
   }
 
   _showAllWorkouts() {
