@@ -146,6 +146,20 @@ class App {
     });
   }
 
+  _refreshMap() {
+    // Storing current map center to plug into _loadMap on next load:
+    const currentCoords = {
+      coords: {
+        latitude: this.#map.getCenter().lat,
+        longitude: this.#map.getCenter().lng,
+      },
+    };
+
+    // Reloading the map:
+    this.#map.remove();
+    this._loadMap(currentCoords);
+  }
+
   _showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
@@ -416,6 +430,9 @@ class App {
       this.#workouts = this.#workouts.filter(e => e.id !== id);
 
       this._refreshCards();
+
+      // Removing the marker:
+      this._refreshMap();
     }
   }
 
