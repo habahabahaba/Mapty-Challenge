@@ -433,6 +433,7 @@ class App {
   _sortWorkouts() {
     // To CMA:
     if (this.#workouts.length <= 1) {
+      sortMenu.selectedIndex = 0;
       return;
     }
 
