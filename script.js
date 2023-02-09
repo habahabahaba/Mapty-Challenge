@@ -431,6 +431,11 @@ class App {
   }
 
   _sortWorkouts() {
+    // To CMA:
+    if (this.#workouts.length <= 1) {
+      return;
+    }
+
     this._sortByProperty(sortMenu.value);
     sortMenu.selectedIndex = 0;
   }
@@ -585,6 +590,11 @@ class App {
   }
 
   _showAllWorkouts() {
+    // To CMA:
+    if (this.#workouts.length <= 1) {
+      return;
+    }
+
     // Finding Lat and Lng extrema:
     const lats = this.#workouts.map(w => w.coords[0]);
     const lngs = this.#workouts.map(w => w.coords[1]);
