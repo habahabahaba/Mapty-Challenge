@@ -80,7 +80,6 @@ const showAllBttn = document.querySelector('.show__all__on__map__button');
 const deleteAllBttn = document.querySelector('.delete__all__button');
 let latTemp;
 let lngTemp;
-let fakeWorkout;
 
 class App {
   #map;
