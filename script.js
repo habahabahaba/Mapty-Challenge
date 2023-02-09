@@ -535,7 +535,6 @@ class App {
     }
 
     // faking "#mapEvent" for coordinates:
-    // const coordsObj = { coords: workout.coords };
     latTemp = workout.coords[0];
     lngTemp = workout.coords[1];
 
