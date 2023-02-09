@@ -155,6 +155,7 @@ class App {
       this.#mapEvent = mapE;
       this._refreshMap();
       this._renderTempMarker(mapE.latlng, 'New');
+      inputDistance.focus();
     } else {
       this._showForm(mapE);
     }
