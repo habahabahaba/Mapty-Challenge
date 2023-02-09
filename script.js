@@ -177,6 +177,7 @@ class App {
   }
 
   _buttonsAlert(string) {
+    // Unused, because I just hide theese buttons now.
     alert(`Please, submit the form before ${string} another workout.`);
   }
 
@@ -205,7 +206,7 @@ class App {
     form.classList.remove('hidden');
     inputDistance.focus();
 
-    // Hiding buttons:
+    // Hiding buttons (my addition):
     this._showHideWorkoutButtons('hide');
   }
 
