@@ -220,15 +220,19 @@ a:visited {
   border-left: 5px solid var(--color-brand--1);
 }
 
-.workout__edit__button {
+.workout__edit__button__box {
   grid-row: -1;
   grid-column: 4;
+}
+
+.workout__edit__button {
   width: 28px;
   border-radius: 3px;
   background-color: var(--color-dark--2);
   margin-left: 50%;
   border: none;
 }
+
 .workout__edit__button:hover {
   filter: brightness(120%);
 }
@@ -237,9 +241,12 @@ a:visited {
   background-color: var(--color-dark--1);
 }
 
-.workout__delete__button {
+.workout__delete__button__box {
   grid-row: -1;
   grid-column: 5;
+}
+
+.workout__delete__button {
   width: 28px;
   border-radius: 3px;
   background-color: var(--color-dark--2);
@@ -263,10 +270,12 @@ a:visited {
   padding-bottom: 10px;
   border-top: 5px solid;
   border-color: crimson;
+  /* border-color: var(--color-light--1); */
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
   transition: all 0.2s;
 }
+
 .sort__by__box {
   order: 1;
   display: flex;

@@ -78,6 +78,9 @@ const sortMenu = document.querySelector('.sort__by__input__menu');
 const inputElevation = document.querySelector('.form__input--elevation');
 const showAllBttn = document.querySelector('.show__all__on__map__button');
 const deleteAllBttn = document.querySelector('.delete__all__button');
+let latTemp;
+let lngTemp;
+let fakeWorkout;
 
 class App {
   #map;
@@ -97,20 +100,20 @@ class App {
     inputType.addEventListener('change', this._toggleElevationField);
     containerWorkouts.addEventListener('click', this._moveToPopup.bind(this));
 
-    // Handler for deleting workouts:
+    // Handler for editing a workout:
+    containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
+
+    // Handler for deleting a workout:
     containerWorkouts.addEventListener('click', this._deleteWorkout.bind(this));
 
     // Handler for deleting ALL workouts:
     deleteAllBttn.addEventListener('click', this.reset);
 
-    // Handler for editing workouts:
-    containerWorkouts.addEventListener('click', this._editWorkout.bind(this));
+    // Handler for showing all workouts on the map:
+    showAllBttn.addEventListener('click', this._showAllWorkouts.bind(this));
 
     // Handler for sorting workouts:
     sortMenu.addEventListener('change', this._sortWorkouts.bind(this));
-
-    // Handler for showing all workouts on the map:
-    showAllBttn.addEventListener('click', this._showAllWorkouts.bind(this));
   }
 
   _getPosition() {
@@ -139,31 +142,71 @@ class App {
     }).addTo(this.#map);
 
     // Handling clicks on the map:
-    this.#map.on('click', this._showForm.bind(this));
+    // this.#map.on('click', this._showForm.bind(this)); // ORIGINAL CODE!
+    this.#map.on('click', this._onMapClick.bind(this));
 
     this.#workouts.forEach(work => {
       this._renderWorkoutMarker(work);
     });
   }
 
-  _refreshMap() {
+  _onMapClick(mapE) {
+    if (!form.classList.contains('hidden')) {
+      this.#mapEvent = mapE;
+      this._refreshMap();
+      this._renderTempMarker(mapE.latlng, 'New');
+    } else {
+      this._showForm(mapE);
+    }
+  }
+
+  _refreshMap(coords) {
     // Storing current map center to plug into _loadMap on next load:
-    const currentCoords = {
-      coords: {
-        latitude: this.#map.getCenter().lat,
-        longitude: this.#map.getCenter().lng,
-      },
-    };
+    const currentCoords = !coords
+      ? {
+          coords: {
+            latitude: this.#map.getCenter().lat,
+            longitude: this.#map.getCenter().lng,
+          },
+        }
+      : coords;
 
     // Reloading the map:
     this.#map.remove();
     this._loadMap(currentCoords);
   }
 
+  _buttonsAlert(string) {
+    alert(`Please, submit the form before ${string} another workout.`);
+  }
+
+  _showHideWorkoutButtons(input) {
+    // input: 'hide' or 'show'.
+
+    const workoutButtons = document.querySelectorAll(
+      '.workout__delete__button, .workout__edit__button'
+    );
+
+    // To CMA:
+    if (input != 'hide' && input != 'show') {
+      return;
+    }
+    if (workoutButtons.length < 1) {
+      return;
+    }
+
+    workoutButtons.forEach(
+      e => (e.style.display = `${input == 'hide' ? 'none' : 'block'}`)
+    );
+  }
+
   _showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove('hidden');
     inputDistance.focus();
+
+    // Hiding buttons:
+    this._showHideWorkoutButtons('hide');
   }
 
   _hideForm() {
@@ -239,6 +282,9 @@ class App {
 
     // Setting the local storage to all workouts:
     this._setLocalStorage();
+
+    // Show buttons:
+    this._showHideWorkoutButtons('show');
   }
 
   _renderWorkoutMarker(workout) {
@@ -263,8 +309,12 @@ class App {
     let html = `
     <li class="workout workout--${workout.type}" data-id="${workout.id}">
             <h2 class="workout__title">${workout.description}</h2>
-            <button class="workout__edit__button">✏️</button>
-            <button class="workout__delete__button">❌</button>
+           <div class="workout__edit__button__box"> 
+           <button class="workout__edit__button">✏️</button>
+           </div>
+           <div class="workout__delete__button__box">   
+           <button class="workout__delete__button">❌</button>
+           </div>
           <div class="workout__details">
             <span class="workout__icon">${
               workout.type === 'running' ? '🏃‍♂️' : '🚴‍♀️'
@@ -429,6 +479,7 @@ class App {
     if (this.#workouts.length > 0) {
       this.#workouts = this.#workouts.filter(e => e.id !== id);
 
+      // Removing the card:
       this._refreshCards();
 
       // Removing the marker:
@@ -443,9 +494,11 @@ class App {
     if (!workoutEl.querySelector('.workout__delete__button').matches(':hover'))
       return;
 
-    // No deleting while editng:
-    if (!form.classList.contains('hidden')) return;
-
+    // // No deleting while editng (No longer neded, as I just hide the buttons now.):
+    // if (!form.classList.contains('hidden')) {
+    //   this._buttonsAlert('deleting');
+    //   return;
+    // }
     this._deleteById(workoutEl.dataset.id);
   }
 
@@ -456,8 +509,11 @@ class App {
     if (!workoutEl.querySelector('.workout__edit__button').matches(':hover'))
       return;
 
-    // Preventing double edits:
-    if (!form.classList.contains('hidden')) return;
+    // // Preventing double edits ((No longer neded, as I just hide the buttons now.):
+    // if (!form.classList.contains('hidden')) {
+    //   this._buttonsAlert('editing');
+    //   return;
+    // }
 
     const workout = this.#workouts.find(
       work => work.id === workoutEl.dataset.id
@@ -479,14 +535,28 @@ class App {
     }
 
     // faking "#mapEvent" for coordinates:
-    this.#mapEvent = {
-      latlng: { lat: workout.coords[0], lng: workout.coords[1] },
+    // const coordsObj = { coords: workout.coords };
+    latTemp = workout.coords[0];
+    lngTemp = workout.coords[1];
+
+    const coordsMap = {
+      latlng: { lat: latTemp, lng: lngTemp },
     };
+    this.#mapEvent = coordsMap;
+
+    // Deleting original workout
+    this._deleteById(workout.id);
+
+    // Hide workout buttons:
+    this._showHideWorkoutButtons('hide');
+
+    // Placing temporary marker on the map:
+    this._renderTempMarker([latTemp, lngTemp], `Current`);
 
     // Deleting original workout only after edit form is closed:
     function deleteDisconnect(mutationRecords) {
       if (mutationRecords) {
-        this._deleteById(workout.id);
+        this._refreshMap();
         waitFormClose.disconnect();
       }
     }
@@ -499,23 +569,33 @@ class App {
     });
   }
 
+  _renderTempMarker(coords, string) {
+    L.marker(coords)
+      .addTo(this.#map)
+      .bindPopup(
+        L.popup({
+          maxWidth: 250,
+          minWidth: 100,
+          autoClose: false,
+          closeOnClick: false,
+          className: `${string}-popup`,
+        })
+      )
+      .setPopupContent(`${string} workout location`)
+      .openPopup();
+  }
+
   _showAllWorkouts() {
     // Finding Lat and Lng extrema:
     const lats = this.#workouts.map(w => w.coords[0]);
     const lngs = this.#workouts.map(w => w.coords[1]);
-    // console.log(lats);
-    // console.log(lngs);
 
     const latExtrema = [Math.min(...lats), Math.max(...lats)];
     const lngExtrema = [Math.min(...lngs), Math.max(...lngs)];
-    // console.log(latExtrema);
-    // console.log(lngExtrema);
 
     // Setting <LatLngBounds> (with 3% margins):
     const marginLat = (latExtrema[1] - latExtrema[0]) * 0.03;
     const marginLng = (lngExtrema[1] - lngExtrema[0]) * 0.03;
-    // console.log(marginLat);
-    // console.log(marginLng);
 
     const latLngBounds = [
       [latExtrema[0] - marginLat, lngExtrema[0] - marginLng],
