@@ -388,8 +388,9 @@ class App {
   }
 
   _restoreInheritance() {
-    console.log(this.#workouts[0]);
-    // Just to CMY:
+    // console.log(this.#workouts[0]);
+
+    // Just to CMA:
     if (this.#workouts.length < 1) {
       console.log(`There's no workouts`);
       return;
