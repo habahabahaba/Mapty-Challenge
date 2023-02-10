@@ -593,7 +593,7 @@ class App {
 
   _showAllWorkouts() {
     // To CMA:
-    if (this.#workouts.length <= 1) {
+    if (this.#workouts.length < 1) {
       return;
     }
 
